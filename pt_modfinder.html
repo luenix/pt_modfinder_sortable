@@ -82,10 +82,7 @@
                             fetch(repo.url)
                                 .then(res => res.json())
                                 .then(repo => {
-                                    if (
-                                        repo.name !== "The-Modding-Tree" &&
-                                        !datesEq(repo.created_at, repo.updated_at)
-                                    ) {
+                                    if (!datesEq(repo.created_at, repo.updated_at)) {
                                         repo.updated = new Date(repo.updated_at);
                                         app.mods.push(repo);
                                     }
