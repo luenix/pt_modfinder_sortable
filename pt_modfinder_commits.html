@@ -112,7 +112,7 @@
                     fetch(repo.commits_url.replace('{/sha}',''))
                         .then(res => res.json())
                         .then(json => {
-                            repo.commit_message = json[json.length-1].commit.message;
+                            repo.commit_message = json[0].commit.message;
                         });
                     console.log(repo.commit_message);
                 });
