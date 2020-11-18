@@ -16,6 +16,10 @@
 
         td, th {
             padding-left: 5px;
+            max-width: 500px;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         th {
@@ -41,12 +45,14 @@
                 <th @click="sort('name')">Mod Name</th>
                 <th>Alt Link</th>
                 <th @click="sort('updated')">Updated</th>
+                <th>Commit Message</th>
             </tr>
             <tr v-for="mod in sortedMods">
                 <td><img :src="mod.owner.avatar_url" width="20" height="20"></td>
                 <td><a :href="'https://' + mod.owner.login + '.github.io/' + mod.name + '/'">{{ mod.name }} by {{ mod.owner.login }}</a></td>
                 <td><a :href="'https://raw.githack.com/' + mod.owner.login + '/' + mod.name + '/' + mod.default_branch + '/index.html'">alt link</a></td>
                 <td class="updated">{{ mod.updated.toISOString() }}</td>
+                <td>"{{ mod.commit_message }}"</td>
             </tr>
         </table>
         <br />sorted by: {{currentSort}} ({{currentSortDir}})
@@ -75,7 +81,7 @@
                 }
 
                 // Make `fetch`s to GitHub APIs
-                fetch("https://api.github.com/repos/Jacorb90/Prestige-Tree/forks")
+                fetch("https://api.github.com/repos/Jacorb90/Prestige-Tree/forks?per_page=100")
                     .then(res => res.json())
                     .then(json => {
                         json.forEach(repo => {
@@ -84,13 +90,23 @@
                                 .then(repo => {
                                     if (!datesEq(repo.created_at, repo.updated_at)) {
                                         repo.updated = new Date(repo.updated_at);
+                                        repo.commit_message = '-';
+                                        repo.commits_url_trimmed = repo.commits_url.replace('{/sha}','');
+                                        //console.log("Fetching: " + repo.commits_url_trimmed);
+                                        fetch(repo.commits_url_trimmed)
+                                            .then(res => res.json())
+                                            .then(json => {
+                                                repo.commit_message = json[0].commit.message;
+                                            });
+                                        //console.log(repo);
+                                        //console.log("Commit message: " + repo.commit_message);
                                         app.mods.push(repo);
                                     }
                                 })
                         })
                     });
 
-                fetch("https://api.github.com/repos/Acamaeda/The-Modding-Tree/forks")
+                fetch("https://api.github.com/repos/Acamaeda/The-Modding-Tree/forks?per_page=100")
                     .then(res => res.json())
                     .then(json => {
                         json.forEach(repo => {
@@ -99,6 +115,16 @@
                                 .then(repo => {
                                     if (!datesEq(repo.created_at, repo.updated_at)) {
                                         repo.updated = new Date(repo.updated_at);
+                                        repo.commit_message = '-';
+                                        repo.commits_url_trimmed = repo.commits_url.replace('{/sha}','');
+                                        //console.log("Fetching: " + repo.commits_url_trimmed);
+                                        fetch(repo.commits_url_trimmed)
+                                            .then(res => res.json())
+                                            .then(json => {
+                                                repo.commit_message = json[0].commit.message;
+                                            });
+                                        //console.log(repo);
+                                        //console.log("Commit message: " + repo.commit_message);
                                         app.mods.push(repo);
                                     }
                                 })
